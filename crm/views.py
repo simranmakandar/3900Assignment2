@@ -52,6 +52,22 @@ def service_list(request):
     services = Service.objects.filter(created_date__lte=timezone.now())
     return render(request, 'crm/service_list.html', {'services': services})
 
+@login_required
+def customer_new(request):
+   if request.method == "POST":
+       form = CustomerForm(request.POST)
+       if form.is_valid():
+           customer = form.save(commit=False)
+           customer.created_date = timezone.now()
+           customer.save()
+           customers = Customer.objects.filter(created_date__lte=timezone.now())
+           return render(request, 'crm/customer_list.html',
+                         {'customers': customers})
+   else:
+       form = CustomerForm()
+       # print("Else")
+   return render(request, 'crm/customer_new.html', {'form': form})
+
 
 @login_required
 def service_new(request):
@@ -90,7 +106,7 @@ def service_edit(request, pk):
 
 @login_required
 def service_delete(request, pk):
-    service = get_object_or_404(Customer, pk=pk)
+    service = get_object_or_404(Service, pk=pk)
     service.delete()
     return redirect('crm:service_list')
 
